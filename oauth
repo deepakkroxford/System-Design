@@ -1,0 +1,70 @@
+
+Root Cause :- 
+User user = userRepository.findByUsername(email).orElse(null);
+if (user == null) {
+    // create new google user
+} else if (user.getAuthProvider() != AuthProvider.GOOGLE) {
+    throw new BadRequestException(
+        "Account already exists. Please login using username and password."
+    );
+}
+
+
+fix :-  
+
+@Enumerated(EnumType.STRING)
+@ElementCollection
+Set<AuthProvider> linkedProviders = new HashSet<>();
+
+public AuthResponse googleLogin(String email, String name) {
+    User user = userRepository.findByUsername(email).orElse(null);
+
+    if (user == null) {
+        user = new User();
+        user.setUsername(email);
+        user.setName(name);
+        user.getLinkedProviders().add(AuthProvider.GOOGLE);
+        user = userRepository.save(user);
+    } else if (!user.getLinkedProviders().contains(AuthProvider.GOOGLE)) {
+        // Email already exists via LOCAL signup — Google has verified
+        // ownership of this email, so it's safe to link.
+        user.getLinkedProviders().add(AuthProvider.GOOGLE);
+        user = userRepository.save(user);
+    }
+
+    String accessToken = authUtil.generateAccessToken(user);
+    String refreshToken = authUtil.generateRefreshToken(user);
+    return new AuthResponse(accessToken, refreshToken, userMapper.toUserProfileResponse(user));
+}
+
+
+
+ISSUE:
+
+When a user signs up using the normal flow (email + password), their account is saved with authProvider = LOCAL. Later, if the same user tries to log in using Google OAuth with the same email address, the application blocks them with the error "Account already exists. Please login using username and password."
+
+This happens in GoogleOAuthServiceImpl.googleLogin(). The method looks up the user by email, finds the existing LOCAL account, and since authProvider is not GOOGLE, it throws a BadRequestException instead of allowing login.
+
+The reverse case also fails the same way — if a user signs up via Google first, and then tries to log in using the normal email/password flow, AuthServiceImpl.login() blocks them with "Please login using Google."
+
+In short: one email can only ever be tied to one login method (LOCAL or GOOGLE), and switching between them is not supported. In a good application, a user should be able to sign up with email/password and later also log in using Google with the same email (account linking), without being blocked.
+
+SOLUTION:
+
+The core problem is that a single authProvider field can only store one value per user, so it cannot represent "this user has both LOCAL and GOOGLE access." The fix is to move from a single provider field to tracking a set of linked providers per user, and to link accounts instead of rejecting them — but only in one direction.
+
+Why only one direction: linking LOCAL to GOOGLE is safe, because Google has already verified that the person owns that email address through the OAuth flow. But linking GOOGLE to LOCAL is not safe to do automatically, because anyone could type in someone else's email on the signup form and set a password without ever proving they own that inbox. If we auto-linked in that direction, an attacker could take over a Google-only account just by knowing the victim's email.
+
+Steps to fix:
+
+Update the User entity: make password nullable (Google-only users won't have one), and add a way to track multiple linked providers, for example a Set<AuthProvider> linkedProviders field, instead of relying only on the single authProvider field.
+Update GoogleOAuthServiceImpl.googleLogin(): if a user with that email already exists and does not yet have GOOGLE in their linkedProviders, add GOOGLE to that set and save, instead of throwing an exception. If the user doesn't exist at all, create it as before and mark it linked to GOOGLE.
+Keep the LOCAL login check in AuthServiceImpl.login() as is (or make it more explicit): if the user has no password set, or LOCAL is not in their linkedProviders, block the login with a clear message like "This account uses Google sign-in. Please continue with Google." This prevents someone from logging in with a password on an account that never set one.
+Optionally, later, allow a Google-only user to set a password after they're authenticated, so they can add LOCAL as a second login method too. This is safe because at that point they're already proven to be logged in.
+
+Summary of the two directions:
+
+Signed up LOCAL, later logs in with GOOGLE (same email) — safe to auto-link, because Google verifies email ownership.
+Signed up GOOGLE, later logs in with LOCAL (same email) — not safe to auto-link, because anyone can claim an email on a signup form.
+
+So the fix is: relax the block on the Google side so it links accounts instead of throwing, keep the block on the local login side, and change the data model from a single authProvider to a set of linkedProviders so one user can genuinely have both methods.
