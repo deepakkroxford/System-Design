@@ -1,4 +1,4 @@
-package BuilderDesignPattern;
+package CreationalDesignPattern.BuilderDesignPattern;
 
 class Employee {
 
