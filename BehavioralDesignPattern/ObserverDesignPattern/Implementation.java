@@ -1,8 +1,7 @@
-package ObserverDesignPattern;
+package BehavioralDesignPattern.ObserverDesignPattern;
 
 import java.util.ArrayList;
 import java.util.List;
-
 
 // Observable (Subject)
 interface WeatherObservable {
@@ -15,7 +14,6 @@ interface WeatherObservable {
 
     void setWeatherReadings(float temperature, float humidity, float pressure);
 }
-
 
 class WeatherStation implements WeatherObservable {
 
@@ -44,7 +42,8 @@ class WeatherStation implements WeatherObservable {
     @Override
     public void notifyObservers() {
         for (WeatherObserver observer : observers) {
-            observer.update(); // Notify each observer of the change that we have made while updating weather data
+            observer.update(); // Notify each observer of the change that we have made while updating weather
+                               // data
         }
     }
 
@@ -125,7 +124,7 @@ public class Implementation {
     public static void main(String[] args) {
         System.out.println("###### Observer Design Pattern (Weather Station) ######");
 
-        //Publisher or Observable
+        // Publisher or Observable
         WeatherObservable weatherStation = new WeatherStation();
 
         // We have two Observers
@@ -143,7 +142,6 @@ public class Implementation {
 
         System.out.println("\n===>>> Third Weather Update");
         weatherStation.setWeatherReadings(70, 21, 29.2f);
-
 
     }
 }

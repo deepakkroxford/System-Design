@@ -5,7 +5,8 @@ public class Student implements Prototype {
     private int rollNo;
     private String school;
 
-    // Default Constructor: Does the heavy/expensive work (DB query, loading configuration)
+    // Default Constructor: Does the heavy/expensive work (DB query, loading
+    // configuration)
     public Student() {
         try {
             System.out.println("Loading heavy school data & curriculum from database (takes 2 seconds)...");

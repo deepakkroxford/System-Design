@@ -1,4 +1,4 @@
-package DecoratorDesignPattern;
+package StructuralDesignPattern.DecoratorDesignPattern;
 
 class MargheritaPizza {
     public String getDescription() {

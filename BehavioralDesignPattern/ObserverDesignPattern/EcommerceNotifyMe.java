@@ -1,4 +1,4 @@
-package ObserverDesignPattern;
+package BehavioralDesignPattern.ObserverDesignPattern;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +129,7 @@ class EmailNotificationObserver implements StockNotificationObserver {
     @Override
     public void update(int newStock) {
         System.out.println("📧 EMAIL to " + emailAddress
-            + " | Product is back in stock! Quantity available: " + newStock);
+                + " | Product is back in stock! Quantity available: " + newStock);
         sendEmail();
     }
 
@@ -162,8 +162,8 @@ class PushNotificationObserver implements StockNotificationObserver {
 
     @Override
     public void update(int newStock) {
-         System.out.println("📱 PUSH to " + deviceToken
-            + " | Product is back in stock! Quantity available: " + newStock);
+        System.out.println("📱 PUSH to " + deviceToken
+                + " | Product is back in stock! Quantity available: " + newStock);
         sendPushNotification();
     }
 

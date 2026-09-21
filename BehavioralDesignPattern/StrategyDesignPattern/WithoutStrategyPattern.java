@@ -1,11 +1,10 @@
-package StrategyDesignPattern;
+package BehavioralDesignPattern.StrategyDesignPattern;
 
 class Vehicle {
-    public void drive(){
+    public void drive() {
         System.out.println("Drive method" + this.getClass().getSimpleName());
     }
 }
-
 
 class SportsCar extends Vehicle {
     @Override
@@ -27,6 +26,7 @@ class Truck extends Vehicle {
         System.out.println("Driving a Truck");
     }
 }
+
 public class WithoutStrategyPattern {
     public static void main(String[] args) {
         Vehicle sportsCar = new SportsCar();

@@ -1,8 +1,9 @@
-package DecoratorDesignPattern;
+package StructuralDesignPattern.DecoratorDesignPattern;
 
 // This one demonstrates the Decorator Design Pattern
 interface Pizza {
     String getDiscription();
+
     double getCost();
 }
 
@@ -37,6 +38,7 @@ class FarmHouse implements Pizza {
 // Topping Decorator
 abstract class ToppingDecorator implements Pizza {
     protected Pizza pizza;
+
     public ToppingDecorator(Pizza pizza) {
         this.pizza = pizza;
     }
@@ -58,7 +60,7 @@ class CheeseTopping extends ToppingDecorator {
         return pizza.getCost() + 50.0;
     }
 }
- 
+
 class OlivesTopping extends ToppingDecorator {
 
     public OlivesTopping(Pizza pizza) {
@@ -74,7 +76,7 @@ class OlivesTopping extends ToppingDecorator {
     public double getCost() {
         return pizza.getCost() + 30.0;
     }
-}   
+}
 
 public class Implementation {
     public static void main(String[] args) {
