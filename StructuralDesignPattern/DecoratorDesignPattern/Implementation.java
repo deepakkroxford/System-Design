@@ -1,17 +1,20 @@
 package StructuralDesignPattern.DecoratorDesignPattern;
 
-// This one demonstrates the Decorator Design Pattern
+// ============================================================================
+// 1. COMPONENT INTERFACE
+// ============================================================================
 interface Pizza {
-    String getDiscription();
+    String getDescription();
 
     double getCost();
 }
 
-// Basic Pizza implementations
-class Margherita implements Pizza {
-
+// ============================================================================
+// 2. CONCRETE COMPONENTS (Base Pizzas)
+// ============================================================================
+class MargheritaPizza implements Pizza {
     @Override
-    public String getDiscription() {
+    public String getDescription() {
         return "Margherita Pizza";
     }
 
@@ -21,11 +24,9 @@ class Margherita implements Pizza {
     }
 }
 
-// Another basic pizza implementation
-class FarmHouse implements Pizza {
-
+class FarmHousePizza implements Pizza {
     @Override
-    public String getDiscription() {
+    public String getDescription() {
         return "FarmHouse Pizza";
     }
 
@@ -35,24 +36,35 @@ class FarmHouse implements Pizza {
     }
 }
 
-// Topping Decorator
+// 3. BASE DECORATOR (Abstract: IS-A Pizza & HAS-A Pizza)
 abstract class ToppingDecorator implements Pizza {
-    protected Pizza pizza;
+    // Reference to the wrapped component (Composition)
+    protected final Pizza pizza;
 
     public ToppingDecorator(Pizza pizza) {
         this.pizza = pizza;
     }
+
+    @Override
+    public String getDescription() {
+        return pizza.getDescription(); // Default delegation
+    }
+
+    @Override
+    public double getCost() {
+        return pizza.getCost(); // Default delegation
+    }
 }
 
-class CheeseTopping extends ToppingDecorator {
-
-    public CheeseTopping(Pizza pizza) {
+// 4. CONCRETE DECORATORS (Toppings)
+class ExtraCheese extends ToppingDecorator {
+    public ExtraCheese(Pizza pizza) {
         super(pizza);
     }
 
     @Override
-    public String getDiscription() {
-        return pizza.getDiscription() + ", Cheese Topping";
+    public String getDescription() {
+        return pizza.getDescription() + " + Extra Cheese";
     }
 
     @Override
@@ -62,14 +74,13 @@ class CheeseTopping extends ToppingDecorator {
 }
 
 class OlivesTopping extends ToppingDecorator {
-
     public OlivesTopping(Pizza pizza) {
         super(pizza);
     }
 
     @Override
-    public String getDiscription() {
-        return pizza.getDiscription() + ", Olives Topping";
+    public String getDescription() {
+        return pizza.getDescription() + " + Fresh Olives";
     }
 
     @Override
@@ -78,17 +89,47 @@ class OlivesTopping extends ToppingDecorator {
     }
 }
 
+class MushroomTopping extends ToppingDecorator {
+    public MushroomTopping(Pizza pizza) {
+        super(pizza);
+    }
+
+    @Override
+    public String getDescription() {
+        return pizza.getDescription() + " + Button Mushrooms";
+    }
+
+    @Override
+    public double getCost() {
+        return pizza.getCost() + 40.0;
+    }
+}
+
+// ============================================================================
+// 5. CLIENT / TEST DEMO
+// ============================================================================
 public class Implementation {
     public static void main(String[] args) {
-        Pizza pizza = new Margherita();
-        System.out.println(pizza.getDiscription() + " | Cost: " + pizza.getCost());
+        System.out.println("=== 1. Customizing Margherita Pizza ===");
+        Pizza margherita = new MargheritaPizza();
+        System.out.println(margherita.getDescription() + " -> Rs." + margherita.getCost());
 
-        // Adding Cheese Topping
-        pizza = new CheeseTopping(pizza);
-        System.out.println(pizza.getDiscription() + " | Cost: " + pizza.getCost());
+        // Decorate with Cheese
+        margherita = new ExtraCheese(margherita);
+        System.out.println(margherita.getDescription() + " -> Rs." + margherita.getCost());
 
-        // Adding Olives Topping
-        pizza = new OlivesTopping(pizza);
-        System.out.println(pizza.getDiscription() + " | Cost: " + pizza.getCost());
+        // Decorate with Olives
+        margherita = new OlivesTopping(margherita);
+        System.out.println(margherita.getDescription() + " -> Rs." + margherita.getCost());
+
+        System.out.println("\n=== 2. Customizing FarmHouse Pizza (Inline Composition) ===");
+        // Farmhouse + Extra Cheese + Olives + Mushrooms (All in one line)
+        Pizza customFarmhouse = new MushroomTopping(
+                new OlivesTopping(
+                        new ExtraCheese(
+                                new FarmHousePizza())));
+
+        System.out.println(customFarmhouse.getDescription());
+        System.out.println("Total Cost: Rs." + customFarmhouse.getCost());
     }
 }
