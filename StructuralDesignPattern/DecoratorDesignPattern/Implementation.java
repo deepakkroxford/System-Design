@@ -1,17 +1,15 @@
 package StructuralDesignPattern.DecoratorDesignPattern;
 
-// ============================================================================
 // 1. COMPONENT INTERFACE
-// ============================================================================
+
 interface Pizza {
     String getDescription();
 
     double getCost();
 }
 
-// ============================================================================
 // 2. CONCRETE COMPONENTS (Base Pizzas)
-// ============================================================================
+
 class MargheritaPizza implements Pizza {
     @Override
     public String getDescription() {
