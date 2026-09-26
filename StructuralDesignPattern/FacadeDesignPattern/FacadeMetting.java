@@ -13,7 +13,7 @@ public class FacadeMetting {
 
     public void startMeeting() {
         camera.start();
-        internet.connectToInternent();
+        internet.connectToInternet();
         microphone.turnOn();
     }
 }

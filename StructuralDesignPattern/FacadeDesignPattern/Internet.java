@@ -1,7 +1,7 @@
 package StructuralDesignPattern.FacadeDesignPattern;
 
-public class Internent {
-    public void connectToInternent() {
+public class Internet {
+    public void connectToInternet() {
         System.out.println("Internet connected....");
     }
 }
